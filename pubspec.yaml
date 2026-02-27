@@ -61,7 +61,7 @@ flutter:
 
   # Include dotenv file for web builds so `dotenv.load()` can read it.
   assets:
-    - .env
+    - assets/.env
 
   # To add assets to your application, add an assets section, like this:
   # assets:
