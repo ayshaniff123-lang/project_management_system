@@ -12,9 +12,7 @@ class SupabaseService {
 
   static Future<void> init() async {
   // Add this guard clause at the very top
-  if (Supabase.instance.client.supabaseUrl.isNotEmpty) {
-    return; // Already initialized, don't do it again
-  }
+  
 
   final url = dotenv.env['SUPABASE_URL'] ?? '';
   final anonKey = dotenv.env['SUPABASE_ANON_KEY'] ?? '';

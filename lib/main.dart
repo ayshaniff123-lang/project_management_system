@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'pages/role_selection.dart';
 import 'services/supabase_service.dart';
+import 'pages/role_selection.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -10,7 +9,7 @@ Future<void> main() async {
   // Load environment variables
   await dotenv.load(fileName: "assets/.env");
 
-  // Only call the Service init, it handles everything
+  // Initialize Supabase (handled inside service)
   await SupabaseService.init();
 
   runApp(const MyApp());
@@ -21,9 +20,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'College Projects',
-      home: const RoleSelectionPage(),
+      home: RoleSelectionPage(),
     );
   }
 }

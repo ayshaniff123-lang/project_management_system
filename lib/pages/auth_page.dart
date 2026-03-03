@@ -18,47 +18,66 @@ class _AuthPageState extends State<AuthPage> {
   bool _isSignUp = false;
   bool _isLoading = false;
 
-  Future<void> _handleAuth() async {
-    setState(() => _isLoading = true);
-    try {
-      if (_isSignUp) {
-        // 1. Sign up user in Supabase Auth
-        final response = await SupabaseService.signUp(
-          _emailController.text.trim(),
-          _passwordController.text.trim(),
-        );
+Future<void> _handleAuth() async {
+  setState(() => _isLoading = true);
 
-        if (response.user != null) {
-          // 2. Create the profile in your 'public.users' table
-          await SupabaseService.createProfile(
-            id: response.user!.id,
-            name: _nameController.text.trim(),
-            role: widget.selectedRole.toLowerCase(),
-          );
-        }
-      } else {
-        // Log in existing user
-        await SupabaseService.signIn(
-          _emailController.text.trim(),
-          _passwordController.text.trim(),
-        );
-      }
-
-      if (mounted) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (_) => const HomePage()),
-          (route) => false,
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+  try {
+    if (_isSignUp) {
+      // Sign up user
+      await SupabaseService.signUp(
+        _emailController.text.trim(),
+        _passwordController.text.trim(),
       );
-    } finally {
-      setState(() => _isLoading = false);
+
+      // Wait until the session is available
+      await Future.delayed(const Duration(seconds: 1)); // small delay for Web
+
+      final user = SupabaseService.currentUser;
+      if (user == null) {
+        throw Exception('User not authenticated yet. Try refreshing.');
+      }
+
+      // Create profile
+      final success = await SupabaseService.createProfile(
+        id: user.id,
+        name: _nameController.text.trim(),
+        role: widget.selectedRole.toLowerCase(),
+      );
+
+      if (!success) {
+        throw Exception('Failed to create user profile');
+      }
+    } else {
+      // Login existing user
+      await SupabaseService.signIn(
+        _emailController.text.trim(),
+        _passwordController.text.trim(),
+      );
+
+      await Future.delayed(const Duration(seconds: 1)); // wait for session
+
+      final user = SupabaseService.currentUser;
+      if (user == null) {
+        throw Exception('Login failed. Check email/password.');
+      }
     }
+
+    // Navigate to home
+    if (mounted) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const HomePage()),
+        (route) => false,
+      );
+    }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+    );
+  } finally {
+    setState(() => _isLoading = false);
   }
+}
 
   @override
   Widget build(BuildContext context) {
