@@ -137,10 +137,8 @@ class SupabaseService {
       if (domainId != null) payload['domain_id'] = domainId;
 
       // Sanitize: replace empty strings with null to avoid DB constraint issues
-      payload.updateAll((key, value) {
-        if (value is String && value.trim().isEmpty) return null;
-        return value;
-      });
+      payload.removeWhere((key, value) =>
+    value is String && value.trim().isEmpty && key != 'title');
 
       await _client.from('projects').insert(payload);
 
