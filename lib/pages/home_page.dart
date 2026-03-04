@@ -5,7 +5,9 @@ import 'add_project_page.dart';
 import '../pages/role_selection.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final String role;
+
+  const HomePage({super.key, required this.role});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -44,48 +46,70 @@ class _HomePageState extends State<HomePage> {
               if (context.mounted) {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (_) => const RoleSelectionPage()),
+                  MaterialPageRoute(
+                      builder: (_) => const RoleSelectionPage()),
                 );
               }
             },
           ),
         ],
       ),
+
       body: StreamBuilder<List<Project>>(
         stream: SupabaseService.projectsStream(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
+
           final projects = snapshot.data ?? [];
-          if (projects.isEmpty) return const Center(child: Text('No projects yet'));
+
+          if (projects.isEmpty) {
+            return const Center(child: Text('No projects yet'));
+          }
 
           return ListView.builder(
             itemCount: projects.length,
             itemBuilder: (context, i) {
               final p = projects[i];
               return Card(
-                margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                margin:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 child: ListTile(
-                  title: Text(p.title, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  title: Text(
+                    p.title,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   subtitle: Text(p.abstract ?? ''),
-                  trailing: Text(p.projectType ?? '', style: const TextStyle(color: Colors.blue)),
-                  onTap: () {},
+                  trailing: Text(
+                    p.projectType,
+                    style: const TextStyle(color: Colors.blue),
+                  ),
                 ),
               );
             },
           );
         },
       ),
-      // ONLY show the add button if the user is NOT a teacher
-      floatingActionButton: _loadingRole || _isTeacher 
-          ? null 
-          : FloatingActionButton(
-              child: const Icon(Icons.add),
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const AddProjectPage()),
-              ),
-            ),
+
+      // ✅ Show Add button ONLY for teachers
+      floatingActionButton: _loadingRole
+          ? null
+          : _isTeacher
+              ? FloatingActionButton(
+                  child: const Icon(Icons.add),
+                  onPressed: () async {
+                    final result = await Navigator.of(context).push(
+                      MaterialPageRoute(
+                          builder: (_) => const AddProjectPage()),
+                    );
+
+                    if (result == true) {
+                      setState(() {}); // refresh list
+                    }
+                  },
+                )
+              : null,
     );
   }
 }

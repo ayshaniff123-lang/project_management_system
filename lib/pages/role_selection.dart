@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'home_page.dart';
 import 'auth_page.dart';
 
 void main() {
@@ -65,21 +64,21 @@ class _RoleSelectionPageState extends State<RoleSelectionPage>
       end: Offset.zero,
     ).animate(CurvedAnimation(parent: _slideController, curve: Curves.easeOut));
 
-    _card1Slide = Tween<Offset>(
-      begin: const Offset(-0.5, 0),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _slideController,
-      curve: const Interval(0.3, 1.0, curve: Curves.easeOutCubic),
-    ));
+    _card1Slide = Tween<Offset>(begin: const Offset(-0.5, 0), end: Offset.zero)
+        .animate(
+          CurvedAnimation(
+            parent: _slideController,
+            curve: const Interval(0.3, 1.0, curve: Curves.easeOutCubic),
+          ),
+        );
 
-    _card2Slide = Tween<Offset>(
-      begin: const Offset(0.5, 0),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _slideController,
-      curve: const Interval(0.3, 1.0, curve: Curves.easeOutCubic),
-    ));
+    _card2Slide = Tween<Offset>(begin: const Offset(0.5, 0), end: Offset.zero)
+        .animate(
+          CurvedAnimation(
+            parent: _slideController,
+            curve: const Interval(0.3, 1.0, curve: Curves.easeOutCubic),
+          ),
+        );
 
     _fadeController.forward();
     _slideController.forward();
@@ -92,7 +91,7 @@ class _RoleSelectionPageState extends State<RoleSelectionPage>
     super.dispose();
   }
 
- /* void _onRoleSelected(String role, BuildContext context) {
+  /* void _onRoleSelected(String role, BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
@@ -119,15 +118,14 @@ class _RoleSelectionPageState extends State<RoleSelectionPage>
     ),
   );
   }*/
-void _onRoleSelected(String role, BuildContext context) {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      // Ensure the role is lowercase ('student' or 'faculty') to match DB constraints
-      builder: (_) => AuthPage(selectedRole: role.toLowerCase()),
-    ),
-  );
-}
+  void _onRoleSelected(String role, BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => AuthPage(selectedRole: role.toLowerCase()),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -145,12 +143,18 @@ void _onRoleSelected(String role, BuildContext context) {
           Positioned(
             top: -100,
             right: -80,
-            child: _GlowOrb(color: const Color(0xFF4ECDC4).withOpacity(0.15), size: 350),
+            child: _GlowOrb(
+              color: const Color(0xFF4ECDC4).withOpacity(0.15),
+              size: 350,
+            ),
           ),
           Positioned(
             bottom: -80,
             left: -60,
-            child: _GlowOrb(color: const Color(0xFFFF6B6B).withOpacity(0.12), size: 300),
+            child: _GlowOrb(
+              color: const Color(0xFFFF6B6B).withOpacity(0.12),
+              size: 300,
+            ),
           ),
           // Content
           FadeTransition(
@@ -158,7 +162,10 @@ void _onRoleSelected(String role, BuildContext context) {
             child: SafeArea(
               child: Center(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 40),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 28,
+                    vertical: 40,
+                  ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -173,13 +180,18 @@ void _onRoleSelected(String role, BuildContext context) {
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(20),
                                 gradient: const LinearGradient(
-                                  colors: [Color(0xFF4ECDC4), Color(0xFF44A08D)],
+                                  colors: [
+                                    Color(0xFF4ECDC4),
+                                    Color(0xFF44A08D),
+                                  ],
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: const Color(0xFF4ECDC4).withOpacity(0.4),
+                                    color: const Color(
+                                      0xFF4ECDC4,
+                                    ).withOpacity(0.4),
                                     blurRadius: 24,
                                     offset: const Offset(0, 8),
                                   ),
@@ -242,36 +254,51 @@ void _onRoleSelected(String role, BuildContext context) {
                       const SizedBox(height: 16),
                       Row(
                         children: [
-                          // Student Card
                           Expanded(
                             child: SlideTransition(
                               position: _card1Slide,
                               child: _RoleCard(
                                 role: 'Student',
-                                subtitle: 'Submit & track your\nproject submissions',
+                                subtitle:
+                                    'Browse & search\nproject submissions',
                                 icon: Icons.school_rounded,
-                                gradientColors: const [Color(0xFFFF6B6B), Color(0xFFEE5A24)],
+                                gradientColors: const [
+                                  Color(0xFFFF6B6B),
+                                  Color(0xFFEE5A24),
+                                ],
                                 glowColor: const Color(0xFFFF6B6B),
                                 accentColor: const Color(0xFFFF6B6B),
-                                features: const ['Submit Projects', 'View Feedback', 'Track Status'],
-                                onTap: () => _onRoleSelected('Student', context),
+                                features: const [
+                                  'View Projects',
+                                  'Search & Filter',
+                                  'Project Details',
+                                ],
+                                onTap: () =>
+                                    _onRoleSelected('Student', context),
                               ),
                             ),
                           ),
                           const SizedBox(width: 16),
-                          // Faculty Card
                           Expanded(
                             child: SlideTransition(
                               position: _card2Slide,
                               child: _RoleCard(
                                 role: 'Faculty',
-                                subtitle: 'Review & manage\nstudent projects',
+                                subtitle: 'Manage & review\nstudent projects',
                                 icon: Icons.person_pin_rounded,
-                                gradientColors: const [Color(0xFF4ECDC4), Color(0xFF44A08D)],
+                                gradientColors: const [
+                                  Color(0xFF4ECDC4),
+                                  Color(0xFF44A08D),
+                                ],
                                 glowColor: const Color(0xFF4ECDC4),
                                 accentColor: const Color(0xFF4ECDC4),
-                                features: const ['Review Projects', 'Add Remarks', 'Manage Domains'],
-                                onTap: () => _onRoleSelected('Faculty', context),
+                                features: const [
+                                  'Add Projects',
+                                  'Edit & Delete',
+                                  'Search & Filter',
+                                ],
+                                onTap: () =>
+                                    _onRoleSelected('Faculty', context),
                               ),
                             ),
                           ),
@@ -336,9 +363,10 @@ class _RoleCardState extends State<_RoleCard>
       duration: const Duration(milliseconds: 120),
       vsync: this,
     );
-    _scaleAnim = Tween<double>(begin: 1.0, end: 0.96).animate(
-      CurvedAnimation(parent: _pressController, curve: Curves.easeIn),
-    );
+    _scaleAnim = Tween<double>(
+      begin: 1.0,
+      end: 0.96,
+    ).animate(CurvedAnimation(parent: _pressController, curve: Curves.easeIn));
   }
 
   @override
@@ -434,30 +462,32 @@ class _RoleCardState extends State<_RoleCard>
                 ),
                 const SizedBox(height: 20),
                 // Feature tags
-                ...widget.features.map((f) => Padding(
-                      padding: const EdgeInsets.only(bottom: 6),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 5,
-                            height: 5,
-                            decoration: BoxDecoration(
-                              color: widget.accentColor,
-                              shape: BoxShape.circle,
-                            ),
+                ...widget.features.map(
+                  (f) => Padding(
+                    padding: const EdgeInsets.only(bottom: 6),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 5,
+                          height: 5,
+                          decoration: BoxDecoration(
+                            color: widget.accentColor,
+                            shape: BoxShape.circle,
                           ),
-                          const SizedBox(width: 8),
-                          Text(
-                            f,
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: Colors.white.withOpacity(0.6),
-                              letterSpacing: 0.3,
-                            ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          f,
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.white.withOpacity(0.6),
+                            letterSpacing: 0.3,
                           ),
-                        ],
-                      ),
-                    )),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 18),
                 // CTA
                 AnimatedContainer(
@@ -480,9 +510,7 @@ class _RoleCardState extends State<_RoleCard>
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
-                        color: _isHovered
-                            ? Colors.white
-                            : widget.accentColor,
+                        color: _isHovered ? Colors.white : widget.accentColor,
                         letterSpacing: 0.5,
                       ),
                     ),
@@ -510,9 +538,7 @@ class _GlowOrb extends StatelessWidget {
       height: size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        gradient: RadialGradient(
-          colors: [color, Colors.transparent],
-        ),
+        gradient: RadialGradient(colors: [color, Colors.transparent]),
       ),
     );
   }

@@ -97,7 +97,7 @@ class _AddProjectPageState extends State<AddProjectPage> {
     setState(() => _loading = false);
 
     if (ok) {
-      Navigator.of(context).pop();
+      Navigator.of(context).pop(true);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
