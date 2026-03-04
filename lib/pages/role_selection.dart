@@ -17,7 +17,7 @@ class ProjectRepoApp extends StatelessWidget {
         fontFamily: 'Georgia',
         scaffoldBackgroundColor: const Color(0xFF0A0E1A),
         colorScheme: ColorScheme.dark(
-          primary: const Color(0xFF4ECDC4),
+          primary: const Color.fromARGB(255, 236, 57, 117),
           secondary: const Color(0xFFFF6B6B),
           surface: const Color(0xFF141928),
         ),
