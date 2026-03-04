@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/supabase_service.dart';
 import '../models/project.dart';
 import 'add_project_page.dart';
+import 'project_detail_page.dart';
 import '../pages/role_selection.dart';
 
 class HomePage extends StatefulWidget {
@@ -85,6 +86,13 @@ class _HomePageState extends State<HomePage> {
                     p.projectType,
                     style: const TextStyle(color: Colors.blue),
                   ),
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => ProjectDetailPage(project: p),
+                      ),
+                    );
+                  },
                 ),
               );
             },
