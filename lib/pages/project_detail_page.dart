@@ -1,6 +1,17 @@
 import 'package:flutter/material.dart';
 import '../models/project.dart';
 
+// ═══════════════════════════════════════════════════════════
+// DESIGN TOKENS
+// ═══════════════════════════════════════════════════════════
+const _primaryColor = Color(0xFF1A1A2E);
+const _accentColor = Color(0xFF6C63FF);
+const _bgColor = Color(0xFFF4F6FB);
+const _cardColor = Color(0xFFFFFFFF);
+const _labelColor = Color(0xFF7B8CA6);
+const _textColor = Color(0xFF1A1A2E);
+const _borderColor = Color(0xFFE2E8F0);
+
 class ProjectDetailPage extends StatelessWidget {
   final Project project;
 
@@ -11,357 +22,326 @@ class ProjectDetailPage extends StatelessWidget {
     return '${date.day}/${date.month}/${date.year}';
   }
 
-  Widget _buildDetailSection({
-    required String title,
-    required String? value,
-    required IconData icon,
-    Color iconColor = Colors.blue,
-  }) {
-    if (value == null || value.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, color: iconColor, size: 22),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.grey,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  value,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black87,
-                  ),
-                  maxLines: 5,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTeamMembersSection() {
-    if (project.teamMembers.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.group, color: Colors.purple, size: 22),
-              const SizedBox(width: 12),
-              const Text(
-                'TEAM MEMBERS',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.grey,
-                  letterSpacing: 0.5,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Padding(
-            padding: const EdgeInsets.only(left: 34.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: project.teamMembers
-                  .map(
-                    (member) => Padding(
-                      padding: const EdgeInsets.only(bottom: 6.0),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 6,
-                            height: 6,
-                            decoration: BoxDecoration(
-                              color: Colors.purple,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            member,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.black87,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                  .toList(),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    final isMajor = project.projectType == 'major';
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Project Details'),
-        elevation: 0,
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header with title and project type
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.blue.shade50,
-                border: Border(
-                  bottom: BorderSide(
-                    color: Colors.blue.shade200,
-                    width: 1,
-                  ),
-                ),
+      backgroundColor: _bgColor,
+      body: CustomScrollView(
+        slivers: [
+          // ── Hero App Bar ────────────────────────────────────────
+          SliverAppBar(
+            expandedHeight: 220,
+            pinned: true,
+            backgroundColor: _primaryColor,
+            leading: IconButton(
+              icon: const Icon(
+                Icons.arrow_back_ios_new,
+                color: Colors.white,
+                size: 20,
               ),
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            flexibleSpace: FlexibleSpaceBar(
+              background: Stack(
+                fit: StackFit.expand,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
+                  // Gradient
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: isMajor
+                            ? [const Color(0xFF1A1A2E), const Color(0xFFE65100)]
+                            : [
+                                const Color(0xFF1A1A2E),
+                                const Color(0xFF6C63FF),
+                              ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    ),
+                  ),
+                  // Decorative circles
+                  Positioned(
+                    right: -40,
+                    top: -40,
+                    child: Container(
+                      width: 180,
+                      height: 180,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white.withOpacity(0.06),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    left: -20,
+                    bottom: 30,
+                    child: Container(
+                      width: 100,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white.withOpacity(0.05),
+                      ),
+                    ),
+                  ),
+                  // Content
+                  Positioned(
+                    left: 20,
+                    right: 20,
+                    bottom: 24,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Type badge
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                isMajor
+                                    ? Icons.rocket_rounded
+                                    : Icons.science_rounded,
+                                color: Colors.white,
+                                size: 13,
+                              ),
+                              const SizedBox(width: 5),
+                              Text(
+                                isMajor ? 'MAJOR PROJECT' : 'MINI PROJECT',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        // Title
+                        Text(
                           project.title,
                           style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
+                            color: Colors.white,
+                            fontSize: 22,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.3,
+                            height: 1.3,
                           ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                      Chip(
-                        label: Text(
-                          project.projectType.toUpperCase(),
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 11,
-                          ),
+                        const SizedBox(height: 8),
+                        // Created date
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.access_time_rounded,
+                              size: 13,
+                              color: Colors.white.withOpacity(0.7),
+                            ),
+                            const SizedBox(width: 5),
+                            Text(
+                              'Created: ${_formatDate(project.createdAt)}',
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.7),
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
                         ),
-                        backgroundColor: project.projectType == 'major'
-                            ? Colors.orange.shade200
-                            : Colors.blue.shade200,
-                        labelStyle: const TextStyle(color: Colors.black87),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Icon(Icons.calendar_today,
-                          size: 16, color: Colors.grey.shade600),
-                      const SizedBox(width: 6),
-                      Text(
-                        'Created: ${_formatDate(project.createdAt)}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey.shade600,
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
+          ),
 
-            // Main content
-            Padding(
-              padding: const EdgeInsets.all(20.0),
+          // ── Body Content ──────────────────────────────────────────
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Abstract
-                  if (project.abstract != null && project.abstract!.isNotEmpty)
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                  // ── Abstract ────────────────────────────────────
+                  if (project.abstract != null &&
+                      project.abstract!.isNotEmpty) ...[
+                    _sectionCard(
+                      icon: Icons.description_rounded,
+                      title: 'Abstract',
+                      child: Text(
+                        project.abstract!,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: _labelColor,
+                          height: 1.7,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+
+                  // ── Project Information ──────────────────────────
+                  _sectionCard(
+                    icon: Icons.info_outline_rounded,
+                    title: 'Project Information',
+                    child: Column(
                       children: [
-                        const Text(
-                          'ABSTRACT',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.grey,
-                            letterSpacing: 0.5,
+                        if (project.domain != null)
+                          _detailRow(
+                            icon: Icons.category_rounded,
+                            label: 'Domain',
+                            value: project.domain!,
+                            iconColor: const Color(0xFF4CAF50),
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade50,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: Colors.grey.shade200,
-                              width: 1,
-                            ),
+                        if (project.guideName != null)
+                          _detailRow(
+                            icon: Icons.person_rounded,
+                            label: 'Guide',
+                            value: project.guideName!,
+                            iconColor: const Color(0xFFFF9800),
                           ),
-                          child: Text(
-                            project.abstract!,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.black87,
-                              height: 1.6,
-                            ),
+                        if (project.year != null)
+                          _detailRow(
+                            icon: Icons.calendar_today_rounded,
+                            label: 'Year',
+                            value: '${project.year}',
+                            iconColor: Colors.redAccent,
                           ),
-                        ),
-                        const SizedBox(height: 24),
+                        if (project.githubLink != null)
+                          _detailRow(
+                            icon: Icons.code_rounded,
+                            label: 'GitHub',
+                            value: project.githubLink!,
+                            iconColor: _primaryColor,
+                            isLast: true,
+                          ),
                       ],
                     ),
+                  ),
+                  const SizedBox(height: 16),
 
-                  // Project Information Section
-                  const Text(
-                    'PROJECT INFORMATION',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.black87,
-                      letterSpacing: 0.5,
+                  // ── Team Members ────────────────────────────────
+                  if (project.teamMembers.isNotEmpty) ...[
+                    _sectionCard(
+                      icon: Icons.group_rounded,
+                      title: 'Team Members',
+                      child: Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: project.teamMembers
+                            .map((member) => _memberChip(member))
+                            .toList(),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
+                    const SizedBox(height: 16),
+                  ],
 
-                  _buildDetailSection(
-                    title: 'DOMAIN',
-                    value: project.domain,
-                    icon: Icons.category,
-                    iconColor: Colors.green,
-                  ),
-
-                  _buildDetailSection(
-                    title: 'GUIDE NAME',
-                    value: project.guideName,
-                    icon: Icons.person,
-                    iconColor: Colors.orange,
-                  ),
-
-                  _buildDetailSection(
-                    title: 'PROJECT YEAR',
-                    value: project.year?.toString(),
-                    icon: Icons.date_range,
-                    iconColor: Colors.red,
-                  ),
-
-                  _buildDetailSection(
-                    title: 'GITHUB LINK',
-                    value: project.githubLink,
-                    icon: Icons.code,
-                    iconColor: Colors.black87,
-                  ),
-
-                  _buildTeamMembersSection(),
-
-                  // Contact Information Section
-                  const SizedBox(height: 16),
-                  const Text(
-                    'CONTACT INFORMATION',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.black87,
-                      letterSpacing: 0.5,
+                  // ── Contact Information ─────────────────────────
+                  if (project.contactEmail != null ||
+                      project.contactPhone != null) ...[
+                    _sectionCard(
+                      icon: Icons.contact_mail_rounded,
+                      title: 'Contact Information',
+                      child: Column(
+                        children: [
+                          if (project.contactEmail != null)
+                            _detailRow(
+                              icon: Icons.email_rounded,
+                              label: 'Email',
+                              value: project.contactEmail!,
+                              iconColor: _accentColor,
+                            ),
+                          if (project.contactPhone != null)
+                            _detailRow(
+                              icon: Icons.phone_rounded,
+                              label: 'Phone',
+                              value: project.contactPhone!,
+                              iconColor: const Color(0xFF4CAF50),
+                              isLast: true,
+                            ),
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
+                    const SizedBox(height: 16),
+                  ],
 
-                  _buildDetailSection(
-                    title: 'EMAIL',
-                    value: project.contactEmail,
-                    icon: Icons.email,
-                    iconColor: Colors.blue,
-                  ),
-
-                  _buildDetailSection(
-                    title: 'PHONE',
-                    value: project.contactPhone,
-                    icon: Icons.phone,
-                    iconColor: Colors.green,
-                  ),
-
-                  // Additional Info Section
-                  const SizedBox(height: 16),
-                  const Text(
-                    'ADDITIONAL INFORMATION',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.black87,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
+                  // ── Extension Badge ─────────────────────────────
                   Container(
-                    padding: const EdgeInsets.all(12),
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: project.extensionPossible
-                          ? Colors.green.shade50
-                          : Colors.red.shade50,
-                      borderRadius: BorderRadius.circular(8),
+                          ? const Color(0xFFE8F5E9)
+                          : const Color(0xFFFFEBEE),
+                      borderRadius: BorderRadius.circular(16),
                       border: Border.all(
                         color: project.extensionPossible
-                            ? Colors.green.shade200
-                            : Colors.red.shade200,
-                        width: 1,
+                            ? const Color(0xFFA5D6A7)
+                            : const Color(0xFFEF9A9A),
                       ),
                     ),
                     child: Row(
                       children: [
-                        Icon(
-                          project.extensionPossible
-                              ? Icons.check_circle
-                              : Icons.cancel,
-                          color: project.extensionPossible
-                              ? Colors.green
-                              : Colors.red,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 12),
-                        Text(
-                          'Extension ${project.extensionPossible ? 'Possible' : 'Not Possible'}',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
+                        Container(
+                          width: 42,
+                          height: 42,
+                          decoration: BoxDecoration(
                             color: project.extensionPossible
-                                ? Colors.green.shade700
-                                : Colors.red.shade700,
+                                ? const Color(0xFF4CAF50).withOpacity(0.15)
+                                : Colors.red.withOpacity(0.12),
+                            shape: BoxShape.circle,
                           ),
+                          child: Icon(
+                            project.extensionPossible
+                                ? Icons.check_circle_rounded
+                                : Icons.cancel_rounded,
+                            color: project.extensionPossible
+                                ? const Color(0xFF4CAF50)
+                                : Colors.redAccent,
+                            size: 24,
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Extension Status',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: _labelColor,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              project.extensionPossible
+                                  ? 'Extension Possible'
+                                  : 'Extension Not Possible',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                                color: project.extensionPossible
+                                    ? const Color(0xFF2E7D32)
+                                    : Colors.red.shade700,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -371,8 +351,161 @@ class ProjectDetailPage extends StatelessWidget {
                 ],
               ),
             ),
-          ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Section Card ──────────────────────────────────────────────
+  Widget _sectionCard({
+    required IconData icon,
+    required String title,
+    required Widget child,
+  }) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: _cardColor,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: _accentColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, color: _accentColor, size: 18),
+              ),
+              const SizedBox(width: 10),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: _textColor,
+                  letterSpacing: 0.3,
+                ),
+              ),
+            ],
+          ),
+          const Divider(color: _borderColor, height: 24),
+          child,
+        ],
+      ),
+    );
+  }
+
+  // ── Detail Row ────────────────────────────────────────────────
+  Widget _detailRow({
+    required IconData icon,
+    required String label,
+    required String value,
+    required Color iconColor,
+    bool isLast = false,
+  }) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 34,
+                height: 34,
+                decoration: BoxDecoration(
+                  color: iconColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(icon, color: iconColor, size: 17),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: _labelColor,
+                        letterSpacing: 0.3,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      value,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: _textColor,
+                        height: 1.4,
+                      ),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
+        if (!isLast) const Divider(color: _borderColor, height: 1),
+      ],
+    );
+  }
+
+  // ── Member Chip ───────────────────────────────────────────────
+  Widget _memberChip(String name) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+      decoration: BoxDecoration(
+        color: _accentColor.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: _accentColor.withOpacity(0.2)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 22,
+            height: 22,
+            decoration: BoxDecoration(
+              color: _accentColor.withOpacity(0.15),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.person_rounded,
+              size: 13,
+              color: _accentColor,
+            ),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            name,
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: _accentColor,
+            ),
+          ),
+        ],
       ),
     );
   }
