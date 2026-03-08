@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/project.dart';
+import 'select_project_page.dart';
+import 'project_comparison_page.dart';
 
 // ═══════════════════════════════════════════════════════════
 // DESIGN TOKENS
@@ -423,6 +425,35 @@ class ProjectDetailPage extends StatelessWidget {
             ),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        backgroundColor: _accentColor,
+        foregroundColor: Colors.white,
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        icon: const Icon(Icons.compare_arrows_rounded),
+        label: const Text(
+          'Compare',
+          style: TextStyle(fontWeight: FontWeight.w700, letterSpacing: 0.5),
+        ),
+        onPressed: () async {
+          final selectedProject = await Navigator.of(context).push<Project>(
+            MaterialPageRoute(
+              builder: (_) => SelectProjectPage(currentProject: project),
+            ),
+          );
+
+          if (selectedProject != null && context.mounted) {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => ProjectComparisonPage(
+                  projectA: project,
+                  projectB: selectedProject,
+                ),
+              ),
+            );
+          }
+        },
       ),
     );
   }
