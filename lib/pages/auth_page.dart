@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/supabase_service.dart';
 import 'home_page.dart';
 import 'faculty_dashboard_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthPage extends StatefulWidget {
   final String selectedRole;
@@ -103,6 +104,13 @@ class _AuthPageState extends State<AuthPage>
       }
 
       if (mounted) {
+        final prefs = await SharedPreferences.getInstance();
+        final userId = SupabaseService.currentUser?.id;
+        if (userId != null) {
+          await prefs.setString('user_uuid', userId);
+          await prefs.setString('user_role', widget.selectedRole);
+        }
+
         final isFaculty = widget.selectedRole == 'faculty';
         Navigator.pushAndRemoveUntil(
           context,

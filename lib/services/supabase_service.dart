@@ -1,5 +1,6 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/project.dart';
 import 'dart:typed_data';
 
@@ -17,10 +18,7 @@ class SupabaseService {
       throw Exception('SUPABASE_URL or SUPABASE_ANON_KEY not found in .env');
     }
 
-    await Supabase.initialize(
-      url: url,
-      anonKey: anonKey,
-    );
+    await Supabase.initialize(url: url, anonKey: anonKey);
     print("Supabase initialized");
   }
 
@@ -73,6 +71,9 @@ class SupabaseService {
   static Future<void> signOut() async {
     try {
       await _client.auth.signOut();
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('user_uuid');
+      await prefs.remove('user_role');
       print("User signed out");
     } catch (e) {
       print("Sign out error: $e");
@@ -105,6 +106,37 @@ class SupabaseService {
   }
 
   // ===============================
+  // DOMAINS & YEARS
+  // ===============================
+  static Future<List<Map<String, dynamic>>> fetchDomains() async {
+    try {
+      final data = await _client
+          .from('domains')
+          .select("*")
+          .order('domain_name', ascending: true);
+      return List<Map<String, dynamic>>.from(data);
+    } catch (e) {
+      print('fetchDomains error: $e');
+      return [];
+    }
+  }
+
+  static Future<List<int>> fetchUniqueYears() async {
+    try {
+      final data = await _client
+          .from('projects')
+          .select('year')
+          .not('year', 'is', null);
+      final years = data.map((e) => e['year'] as int).toSet().toList();
+      years.sort((a, b) => b.compareTo(a));
+      return years;
+    } catch (e) {
+      print('fetchUniqueYears error: $e');
+      return [];
+    }
+  }
+
+  // ===============================
   // PROJECTS
   // ===============================
   static Stream<List<Project>> projectsStream() {
@@ -112,9 +144,11 @@ class SupabaseService {
         .from('projects')
         .stream(primaryKey: ['id'])
         .order('created_at', ascending: false)
-        .map((rows) => rows
-            .map((row) => Project.fromMap(Map<String, dynamic>.from(row)))
-            .toList());
+        .map(
+          (rows) => rows
+              .map((row) => Project.fromMap(Map<String, dynamic>.from(row)))
+              .toList(),
+        );
   }
 
   static Future<List<Project>> fetchProjects() async {
@@ -240,10 +274,7 @@ class SupabaseService {
         return value;
       });
 
-      await _client
-          .from('projects')
-          .update(payload)
-          .eq('id', project.id!);
+      await _client.from('projects').update(payload).eq('id', project.id!);
 
       print("Project updated successfully");
       return true;

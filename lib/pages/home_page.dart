@@ -32,6 +32,11 @@ class _HomePageState extends State<HomePage>
   final _searchController = TextEditingController();
   String _searchQuery = '';
   String _filterType = 'all'; // 'all', 'mini', 'major'
+  String? _selectedDomain;
+  int? _selectedYear;
+  List<Map<String, dynamic>> _domains = [];
+  List<int> _years = [];
+  bool _isLoadingFilters = true;
 
   late AnimationController _animController;
   late Animation<double> _fadeAnim;
@@ -40,6 +45,7 @@ class _HomePageState extends State<HomePage>
   void initState() {
     super.initState();
     _loadUserRole();
+    _loadFilters();
     _animController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 600),
@@ -61,6 +67,18 @@ class _HomePageState extends State<HomePage>
       setState(() {
         _isTeacher = teacherStatus;
         _loadingRole = false;
+      });
+    }
+  }
+
+  Future<void> _loadFilters() async {
+    final domains = await SupabaseService.fetchDomains();
+    final years = await SupabaseService.fetchUniqueYears();
+    if (mounted) {
+      setState(() {
+        _domains = domains;
+        _years = years;
+        _isLoadingFilters = false;
       });
     }
   }
@@ -276,13 +294,159 @@ class _HomePageState extends State<HomePage>
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 14, 16, 4),
-                child: Row(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _filterChip('all', 'All'),
-                    const SizedBox(width: 8),
-                    _filterChip('mini', 'Mini'),
-                    const SizedBox(width: 8),
-                    _filterChip('major', 'Major'),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          _filterChip('all', 'All'),
+                          const SizedBox(width: 8),
+                          _filterChip('mini', 'Mini'),
+                          const SizedBox(width: 8),
+                          _filterChip('major', 'Major'),
+                        ],
+                      ),
+                    ),
+                    if (!_isLoadingFilters) ...[
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Expanded(
+                            flex: 3,
+                            child: Container(
+                              height: 48,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                              ),
+                              decoration: BoxDecoration(
+                                color: _cardColor,
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.02),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: DropdownButtonHideUnderline(
+                                child: DropdownButton<String>(
+                                  isExpanded: true,
+                                  hint: const Text(
+                                    'All Domains',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: _labelColor,
+                                    ),
+                                  ),
+                                  value: _selectedDomain,
+                                  icon: const Icon(
+                                    Icons.keyboard_arrow_down_rounded,
+                                    color: _labelColor,
+                                    size: 20,
+                                  ),
+                                  items: [
+                                    const DropdownMenuItem<String>(
+                                      value: null,
+                                      child: Text(
+                                        'All Domains',
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          color: _textColor,
+                                        ),
+                                      ),
+                                    ),
+                                    ..._domains.map((d) {
+                                      return DropdownMenuItem<String>(
+                                        value: d['domain_name'] as String,
+                                        child: Text(
+                                          d['domain_name'] as String,
+                                          style: const TextStyle(
+                                            fontSize: 13,
+                                            color: _textColor,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ],
+                                  onChanged: (val) =>
+                                      setState(() => _selectedDomain = val),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            flex: 2,
+                            child: Container(
+                              height: 48,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                              ),
+                              decoration: BoxDecoration(
+                                color: _cardColor,
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.02),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: DropdownButtonHideUnderline(
+                                child: DropdownButton<int>(
+                                  isExpanded: true,
+                                  hint: const Text(
+                                    'All Years',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: _labelColor,
+                                    ),
+                                  ),
+                                  value: _selectedYear,
+                                  icon: const Icon(
+                                    Icons.keyboard_arrow_down_rounded,
+                                    color: _labelColor,
+                                    size: 20,
+                                  ),
+                                  items: [
+                                    const DropdownMenuItem<int>(
+                                      value: null,
+                                      child: Text(
+                                        'All Years',
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          color: _textColor,
+                                        ),
+                                      ),
+                                    ),
+                                    ..._years.map((y) {
+                                      return DropdownMenuItem<int>(
+                                        value: y,
+                                        child: Text(
+                                          y.toString(),
+                                          style: const TextStyle(
+                                            fontSize: 13,
+                                            color: _textColor,
+                                          ),
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ],
+                                  onChanged: (val) =>
+                                      setState(() => _selectedYear = val),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -320,6 +484,20 @@ class _HomePageState extends State<HomePage>
                 if (_filterType != 'all') {
                   projects = projects
                       .where((p) => p.projectType == _filterType)
+                      .toList();
+                }
+
+                // Filter by domain
+                if (_selectedDomain != null) {
+                  projects = projects
+                      .where((p) => p.domain == _selectedDomain)
+                      .toList();
+                }
+
+                // Filter by year
+                if (_selectedYear != null) {
+                  projects = projects
+                      .where((p) => p.year == _selectedYear)
                       .toList();
                 }
 
