@@ -32,6 +32,7 @@ class _HomePageState extends State<HomePage>
   final _searchController = TextEditingController();
   String _searchQuery = '';
   String _filterType = 'all'; // 'all', 'mini', 'major'
+  bool _filterSocialRelevant = false;
   String? _selectedDomain;
   int? _selectedYear;
   List<Map<String, dynamic>> _domains = [];
@@ -306,6 +307,8 @@ class _HomePageState extends State<HomePage>
                           _filterChip('mini', 'Mini'),
                           const SizedBox(width: 8),
                           _filterChip('major', 'Major'),
+                          const SizedBox(width: 8),
+                          _socialRelevantFilterChip(),
                         ],
                       ),
                     ),
@@ -487,6 +490,11 @@ class _HomePageState extends State<HomePage>
                       .toList();
                 }
 
+                // Filter by social relevance
+                if (_filterSocialRelevant) {
+                  projects = projects.where((p) => p.socialRelevant).toList();
+                }
+
                 // Filter by domain
                 if (_selectedDomain != null) {
                   projects = projects
@@ -615,6 +623,52 @@ class _HomePageState extends State<HomePage>
             fontWeight: FontWeight.w600,
             color: selected ? Colors.white : _labelColor,
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _socialRelevantFilterChip() {
+    return GestureDetector(
+      onTap: () =>
+          setState(() => _filterSocialRelevant = !_filterSocialRelevant),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: _filterSocialRelevant ? _accentColor : _cardColor,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: _filterSocialRelevant ? _accentColor : _borderColor,
+          ),
+          boxShadow: _filterSocialRelevant
+              ? [
+                  BoxShadow(
+                    color: _accentColor.withOpacity(0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
+                  ),
+                ]
+              : [],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.public_rounded,
+              size: 14,
+              color: _filterSocialRelevant ? Colors.white : _labelColor,
+            ),
+            const SizedBox(width: 4),
+            Text(
+              'Socially Relevant',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: _filterSocialRelevant ? Colors.white : _labelColor,
+              ),
+            ),
+          ],
         ),
       ),
     );

@@ -721,9 +721,11 @@ class _EditProjectPageState extends State<EditProjectPage>
   late TextEditingController _phoneCtrl;
   late TextEditingController _githubCtrl;
   late TextEditingController _yearCtrl;
+  late TextEditingController _relevantDescriptionCtrl;
 
   late String _projectType;
   late bool _extensionPossible;
+  late bool _socialRelevant;
   bool _loading = false;
 
   late AnimationController _animController;
@@ -752,8 +754,12 @@ class _EditProjectPageState extends State<EditProjectPage>
     _yearCtrl = TextEditingController(
       text: widget.project.year?.toString() ?? '',
     );
+    _relevantDescriptionCtrl = TextEditingController(
+      text: widget.project.relevantDescription ?? '',
+    );
     _projectType = widget.project.projectType;
     _extensionPossible = widget.project.extensionPossible;
+    _socialRelevant = widget.project.socialRelevant;
   }
 
   @override
@@ -768,6 +774,7 @@ class _EditProjectPageState extends State<EditProjectPage>
     _phoneCtrl.dispose();
     _githubCtrl.dispose();
     _yearCtrl.dispose();
+    _relevantDescriptionCtrl.dispose();
     super.dispose();
   }
 
@@ -799,6 +806,10 @@ class _EditProjectPageState extends State<EditProjectPage>
       githubLink: _nullIfEmpty(_githubCtrl.text),
       year: int.tryParse(_yearCtrl.text.trim()),
       extensionPossible: _extensionPossible,
+      socialRelevant: _socialRelevant,
+      relevantDescription: _socialRelevant
+          ? _nullIfEmpty(_relevantDescriptionCtrl.text)
+          : null,
     );
 
     final ok = await SupabaseService.updateProject(updatedProject);
@@ -1048,6 +1059,84 @@ class _EditProjectPageState extends State<EditProjectPage>
                           activeColor: _accentColor,
                           onChanged: (val) =>
                               setState(() => _extensionPossible = val),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      // Socially relevant toggle card
+                      Container(
+                        decoration: BoxDecoration(
+                          color: _cardColor,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          children: [
+                            SwitchListTile(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 4,
+                              ),
+                              secondary: Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  color: _accentColor.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: const Icon(
+                                  Icons.public_rounded,
+                                  color: _accentColor,
+                                  size: 20,
+                                ),
+                              ),
+                              title: const Text(
+                                'Socially Relevant',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  color: _textColor,
+                                  fontSize: 15,
+                                ),
+                              ),
+                              subtitle: const Text(
+                                'Does this project have a social impact?',
+                                style: TextStyle(
+                                  color: _labelColor,
+                                  fontSize: 12,
+                                ),
+                              ),
+                              value: _socialRelevant,
+                              activeColor: _accentColor,
+                              onChanged: (val) =>
+                                  setState(() => _socialRelevant = val),
+                            ),
+                            if (_socialRelevant) ...[
+                              const Divider(color: _borderColor, height: 1),
+                              Padding(
+                                padding: const EdgeInsets.all(20),
+                                child: _field(
+                                  controller: _relevantDescriptionCtrl,
+                                  label: 'Relevant Description',
+                                  hint: 'Describe the social impact...',
+                                  icon: Icons.volunteer_activism_rounded,
+                                  maxLines: 3,
+                                  required: true,
+                                  validator: (val) =>
+                                      (val == null || val.trim().isEmpty)
+                                      ? 'Description is required'
+                                      : null,
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                       ),
                       const SizedBox(height: 28),

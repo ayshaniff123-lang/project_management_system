@@ -3,17 +3,19 @@ class Project {
   final String title;
   final String? abstract;
   final String? domain;
-  final String? domainId;       // FK → domains(id)
+  final String? domainId; // FK → domains(id)
   final String projectType;
   final String? guideName;
-  final String? guideId;        // FK → users(id)
-  final String? studentId;      // FK → users(id)
+  final String? guideId; // FK → users(id)
+  final String? studentId; // FK → users(id)
   final List<String> teamMembers;
   final String? contactEmail;
   final String? contactPhone;
   final String? githubLink;
   final int? year;
   final bool extensionPossible;
+  final bool socialRelevant;
+  final String? relevantDescription;
   final DateTime? createdAt;
 
   const Project({
@@ -32,11 +34,13 @@ class Project {
     this.githubLink,
     this.year,
     this.extensionPossible = false,
+    this.socialRelevant = false,
+    this.relevantDescription,
     this.createdAt,
   }) : assert(
-          projectType == 'mini' || projectType == 'major',
-          'projectType must be mini or major',
-        );
+         projectType == 'mini' || projectType == 'major',
+         'projectType must be mini or major',
+       );
 
   factory Project.fromMap(Map<String, dynamic> map) {
     return Project(
@@ -57,6 +61,8 @@ class Project {
       githubLink: map['github_link'] as String?,
       year: map['year'] as int?,
       extensionPossible: map['extension_possible'] as bool? ?? false,
+      socialRelevant: map['social_relevant'] as bool? ?? false,
+      relevantDescription: map['relevant_description'] as String?,
       createdAt: map['created_at'] != null
           ? DateTime.parse(map['created_at'] as String)
           : null,
@@ -80,6 +86,9 @@ class Project {
       if (githubLink != null) 'github_link': githubLink,
       if (year != null) 'year': year,
       'extension_possible': extensionPossible,
+      'social_relevant': socialRelevant,
+      if (relevantDescription != null)
+        'relevant_description': relevantDescription,
     };
   }
 
@@ -99,6 +108,8 @@ class Project {
     String? githubLink,
     int? year,
     bool? extensionPossible,
+    bool? socialRelevant,
+    String? relevantDescription,
     DateTime? createdAt,
   }) {
     return Project(
@@ -117,6 +128,8 @@ class Project {
       githubLink: githubLink ?? this.githubLink,
       year: year ?? this.year,
       extensionPossible: extensionPossible ?? this.extensionPossible,
+      socialRelevant: socialRelevant ?? this.socialRelevant,
+      relevantDescription: relevantDescription ?? this.relevantDescription,
       createdAt: createdAt ?? this.createdAt,
     );
   }

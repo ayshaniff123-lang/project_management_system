@@ -347,6 +347,76 @@ class ProjectDetailPage extends StatelessWidget {
                     ),
                   ),
 
+                  // ── Social Relevance Badge ────────────────────────
+                  if (project.socialRelevant) ...[
+                    const SizedBox(height: 16),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE3F2FD),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFF90CAF9)),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 42,
+                            height: 42,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF2196F3).withOpacity(0.15),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.public_rounded,
+                              color: Color(0xFF1976D2),
+                              size: 24,
+                            ),
+                          ),
+                          const SizedBox(width: 14),
+                          const Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Social Impact',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: _labelColor,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              SizedBox(height: 2),
+                              Text(
+                                'Socially Relevant',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF1565C0),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (project.relevantDescription != null &&
+                        project.relevantDescription!.isNotEmpty) ...[
+                      const SizedBox(height: 16),
+                      _sectionCard(
+                        icon: Icons.volunteer_activism_rounded,
+                        title: 'Relevant Description',
+                        child: Text(
+                          project.relevantDescription!,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: _labelColor,
+                            height: 1.7,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+
                   const SizedBox(height: 32),
                 ],
               ),

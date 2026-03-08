@@ -24,16 +24,20 @@ class _AddProjectPageState extends State<AddProjectPage>
 
   final _titleCtrl = TextEditingController();
   final _abstractCtrl = TextEditingController();
-  final _domainCtrl = TextEditingController();
+  String? _selectedDomainName;
+  List<Map<String, dynamic>> _domains = [];
+  bool _isLoadingDomains = true;
   final _guideCtrl = TextEditingController();
   final _teamCtrl = TextEditingController();
   final _emailCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController();
   final _githubCtrl = TextEditingController();
   final _yearCtrl = TextEditingController();
+  final _relevantDescriptionCtrl = TextEditingController();
 
   String _projectType = 'mini';
   bool _extensionPossible = false;
+  bool _socialRelevant = false;
   bool _loading = false;
 
   late AnimationController _animController;
@@ -57,6 +61,26 @@ class _AddProjectPageState extends State<AddProjectPage>
     );
     _fadeAnim = CurvedAnimation(parent: _animController, curve: Curves.easeOut);
     _animController.forward();
+    _loadDomains();
+  }
+
+  Future<void> _loadDomains() async {
+    final domains = await SupabaseService.fetchDomains();
+    if (mounted) {
+      setState(() {
+        _domains = domains;
+        _isLoadingDomains = false;
+        if (widget.domainId != null) {
+          try {
+            _selectedDomainName = _domains.firstWhere(
+              (d) => d['id'] == widget.domainId,
+            )['domain_name'];
+          } catch (e) {
+            _selectedDomainName = null;
+          }
+        }
+      });
+    }
   }
 
   @override
@@ -64,13 +88,13 @@ class _AddProjectPageState extends State<AddProjectPage>
     _animController.dispose();
     _titleCtrl.dispose();
     _abstractCtrl.dispose();
-    _domainCtrl.dispose();
     _guideCtrl.dispose();
     _teamCtrl.dispose();
     _emailCtrl.dispose();
     _phoneCtrl.dispose();
     _githubCtrl.dispose();
     _yearCtrl.dispose();
+    _relevantDescriptionCtrl.dispose();
     super.dispose();
   }
 
@@ -89,8 +113,12 @@ class _AddProjectPageState extends State<AddProjectPage>
     final project = Project(
       title: _titleCtrl.text.trim(),
       abstract: _nullIfEmpty(_abstractCtrl.text),
-      domain: _nullIfEmpty(_domainCtrl.text),
-      domainId: widget.domainId,
+      domain: _selectedDomainName,
+      domainId: _selectedDomainName != null
+          ? _domains.firstWhere(
+              (d) => d['domain_name'] == _selectedDomainName,
+            )['id']
+          : widget.domainId,
       projectType: _projectType,
       guideName: _nullIfEmpty(_guideCtrl.text),
       guideId: widget.guideId,
@@ -101,6 +129,10 @@ class _AddProjectPageState extends State<AddProjectPage>
       githubLink: _nullIfEmpty(_githubCtrl.text),
       year: int.tryParse(_yearCtrl.text.trim()),
       extensionPossible: _extensionPossible,
+      socialRelevant: _socialRelevant,
+      relevantDescription: _socialRelevant
+          ? _nullIfEmpty(_relevantDescriptionCtrl.text)
+          : null,
     );
 
     final ok = await SupabaseService.insertProject(
@@ -242,12 +274,72 @@ class _AddProjectPageState extends State<AddProjectPage>
                             maxLines: 4,
                           ),
                           const SizedBox(height: 16),
-                          _field(
-                            controller: _domainCtrl,
-                            label: 'Domain',
-                            hint: 'e.g. Machine Learning, Web Dev',
-                            icon: Icons.category_rounded,
-                          ),
+                          if (_isLoadingDomains)
+                            const SizedBox(height: 0)
+                          else
+                            DropdownButtonFormField<String>(
+                              value: _selectedDomainName,
+                              decoration: InputDecoration(
+                                labelText: 'Domain',
+                                hintText: 'Select a domain',
+                                hintStyle: TextStyle(
+                                  color: _labelColor.withOpacity(0.6),
+                                  fontSize: 13,
+                                ),
+                                labelStyle: const TextStyle(
+                                  color: _labelColor,
+                                  fontSize: 13,
+                                ),
+                                prefixIcon: const Icon(
+                                  Icons.category_rounded,
+                                  color: _accentColor,
+                                  size: 18,
+                                ),
+                                filled: true,
+                                fillColor: _bgColor,
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 14,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: const BorderSide(
+                                    color: _borderColor,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: const BorderSide(
+                                    color: _borderColor,
+                                  ),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: const BorderSide(
+                                    color: _accentColor,
+                                    width: 1.8,
+                                  ),
+                                ),
+                              ),
+                              items: _domains.map((d) {
+                                return DropdownMenuItem<String>(
+                                  value: d['domain_name'] as String,
+                                  child: Text(
+                                    d['domain_name'] as String,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: _textColor,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                              onChanged: (val) {
+                                setState(() {
+                                  _selectedDomainName = val;
+                                });
+                              },
+                            ),
                           const SizedBox(height: 16),
                           _projectTypeSelector(),
                           const SizedBox(height: 16),
@@ -370,6 +462,84 @@ class _AddProjectPageState extends State<AddProjectPage>
                           activeColor: _accentColor,
                           onChanged: (val) =>
                               setState(() => _extensionPossible = val),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      // Socially relevant toggle card
+                      Container(
+                        decoration: BoxDecoration(
+                          color: _cardColor,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          children: [
+                            SwitchListTile(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 4,
+                              ),
+                              secondary: Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  color: _accentColor.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: const Icon(
+                                  Icons.public_rounded,
+                                  color: _accentColor,
+                                  size: 20,
+                                ),
+                              ),
+                              title: const Text(
+                                'Socially Relevant',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  color: _textColor,
+                                  fontSize: 15,
+                                ),
+                              ),
+                              subtitle: const Text(
+                                'Does this project have a social impact?',
+                                style: TextStyle(
+                                  color: _labelColor,
+                                  fontSize: 12,
+                                ),
+                              ),
+                              value: _socialRelevant,
+                              activeColor: _accentColor,
+                              onChanged: (val) =>
+                                  setState(() => _socialRelevant = val),
+                            ),
+                            if (_socialRelevant) ...[
+                              const Divider(color: _borderColor, height: 1),
+                              Padding(
+                                padding: const EdgeInsets.all(20),
+                                child: _field(
+                                  controller: _relevantDescriptionCtrl,
+                                  label: 'Relevant Description',
+                                  hint: 'Describe the social impact...',
+                                  icon: Icons.volunteer_activism_rounded,
+                                  maxLines: 3,
+                                  required: true,
+                                  validator: (val) =>
+                                      (val == null || val.trim().isEmpty)
+                                      ? 'Description is required'
+                                      : null,
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                       ),
 
