@@ -497,10 +497,12 @@ class _HomePageState extends State<HomePage>
 
                 // Filter by domain
                 if (_selectedDomain != null) {
-                  projects = projects
-                      .where((p) => p.domain == _selectedDomain)
-                      .toList();
-                }
+  projects = projects.where((p) {
+    final projectDomain = p.domain?.toLowerCase().trim();
+    final selectedDomain = _selectedDomain?.toLowerCase().trim();
+    return projectDomain == selectedDomain;
+  }).toList();
+}
 
                 // Filter by year
                 if (_selectedYear != null) {

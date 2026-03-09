@@ -277,17 +277,7 @@ class _RoleSelectionPageState extends State<RoleSelectionPage>
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Who are you today?',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w800,
-                      color: _textColor,
-                      letterSpacing: -0.3,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
+                  
 
                   // Role cards
                   FadeTransition(
